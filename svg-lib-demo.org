@@ -6,11 +6,11 @@
 
 (defvar svg-font-lock-keywords
   `(("TODO"
-     (0 (list 'face nil 'display (svg-font-lock-todo))))
+     (0 (list 'face nil 'display svg-font-lock-todo)))
     ("\\:\\([0-9a-zA-Z]+\\)\\:"
      (0 (list 'face nil 'display (svg-font-lock-tag (match-string 1)))))
     ("DONE"
-     (0 (list 'face nil 'display (svg-font-lock-done))))
+     (0 (list 'face nil 'display svg-font-lock-done)))
     ("\\[\\([0-9]\\{1,3\\}\\)%\\]"
      (0 (list 'face nil 'display (svg-font-lock-progress_percent (match-string 1)))))
     ("\\[\\([0-9]+/[0-9]+\\)\\]"
@@ -19,16 +19,16 @@
 (defun svg-font-lock-tag (label)
   (svg-lib-tag label nil :margin 0))
 
-(defun svg-font-lock-todo ()
+(defvar svg-font-lock-todo
   (svg-lib-tag "TODO" nil :margin 0
                :font-family "Roboto Mono" :font-weight 500
-               :foreground "#FFFFFF" :background "#673AB7"))
+               :foreground (face-foreground 'nano-salient-i) :background (face-background 'nano-salient-i)))
 
-(defun svg-font-lock-done ()
+(defvar svg-font-lock-done
   (svg-lib-tag "DONE" nil :margin 0
                :font-family "Roboto Mono" :font-weight 400
-               :foreground "#B0BEC5" :background "white"))
-  
+               :foreground (face-foreground 'nano-faded-i) :background (face-background 'nano-faded-i)))
+
 (defun svg-font-lock-progress_percent (value)
   (svg-image (svg-lib-concat
               (svg-lib-progress-bar (/ (string-to-number value) 100.0)
@@ -51,22 +51,30 @@
 (font-lock-add-keywords nil svg-font-lock-keywords)
 (font-lock-flush (point-min) (point-max))
 
-;; Deactivate 
+;; Deactivate
 ;; (font-lock-remove-keywords nil svg-font-lock-keywords)
 ;; (font-lock-flush (point-min) (point-max))
 
 #+end_src
 
-* Progress count:   [2/3] 
+#+RESULTS:
+
+* DONE Progress count:   [2/3]
 :PROPERTIES:
+:END:
+:LOGBOOK:
+- State "DONE"       from              [2021-09-15 Wed 19:48]
 :END:
 
 - [X] Sub-task 1
 - [X] Sub-task 2
 - [ ] Sub-task 3
 
-* Progress percent: [66%]
+* TODO Progress percent: [66%] :Research:
 :PROPERTIES:
+:END:
+:LOGBOOK:
+- State "TODO"       from              [2021-09-15 Wed 19:48]
 :END:
 
 - [X] Sub-task 1
