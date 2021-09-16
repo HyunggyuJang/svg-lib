@@ -245,7 +245,7 @@ and style elements ARGS."
                        (- tag-width stroke) (- tag-height stroke)
                        :fill background :rx (- radius (/ stroke 2.0)))
     (svg-text svg label
-              :font-family font-family :font-weight font-weight
+              :font-family font-family :font-weight font-weight :font-size font-size
               :fill foreground :x text-x :y  text-y)
     (svg-image svg :scale 1 :ascent 'center)))
 
