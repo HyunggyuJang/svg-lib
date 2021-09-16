@@ -1,43 +1,64 @@
 #+STARTUP: overview indent
 
 * Code
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :lexical t
   (require 'svg-lib)
 
-  (setq svg-font-lock-keywords
-    `(("TODO"
-       (0 (list 'face nil 'display svg-font-lock-todo)))
-      ("\\:\\([0-9a-zA-Z]+\\)\\:"
-       (0 (list 'face nil 'display (svg-font-lock-tag (match-string 1)))))
-      ("DONE"
-       (0 (list 'face nil 'display svg-font-lock-done)))
-      ("CANCELLED"
-       (0 (list 'face nil 'display svg-font-lock-cancelled)))))
+  (letf! ((default (font-info (face-font 'default)))
+          (font-size (aref default 2))
+          (fixed-full-name (aref (font-info (face-font 'fixed-pitch)) 1))
+          (fixed-font-info (--> (string-match ":" fixed-full-name)
+                                (substring fixed-full-name 0 it)
+                                (format "%s-%d" it font-size)
+                                (font-info it)))
+          (fixed-width (aref fixed-font-info 11))
+          (fixed-height (aref fixed-font-info 3))
+          (defun window-font-size ()
+            fixed-width)
+          (defun window-font-height ()
+            fixed-height))
 
-  (defun svg-font-lock-tag (label)
-    (svg-lib-tag label nil))
+    (setq svg-font-size (- font-size 3))
+    (setq svg-font-lock-keywords
+          `(("TODO"
+             (0 (list 'face nil 'display svg-font-lock-todo)))
+            ("\\:\\([0-9a-zA-Z]+\\)\\:"
+             (0 (list 'face nil 'display (svg-font-lock-tag (match-string 1)))))
+            ("DONE"
+             (0 (list 'face nil 'display svg-font-lock-done)))
+            ("CANCELLED"
+             (0 (list 'face nil 'display svg-font-lock-cancelled)))))
 
-  (setq svg-font-lock-todo
-    (svg-lib-tag "TODO" nil  :font-weight 400
-                 :foreground (face-foreground 'nano-salient-i) :background (face-background 'nano-salient-i)))
+    (defun svg-font-lock-tag (label)
+      (svg-lib-tag label nil
+                   :font-size svg-font-size))
 
-  (setq svg-font-lock-done
-    (svg-lib-button "check-bold" "DONE" nil
-                    :foreground (face-foreground 'nano-faded)))
+    (setq svg-font-lock-todo
+          (svg-lib-tag "TODO" nil
+                       :font-size svg-font-size
+                       :font-weight 400
+                       :foreground (face-foreground 'nano-salient-i) :background (face-background 'nano-salient-i)))
 
-  (setq svg-font-lock-cancelled
-    (svg-lib-button "close-network" "CANCELLED" nil
-                    :foreground (face-foreground 'nano-faded)))
+    (setq svg-font-lock-done
+          (svg-lib-button "check-bold" "DONE" nil
+                          :font-size svg-font-size
+                          :foreground (face-foreground 'nano-faded)))
 
-  ;; Activate
-  (push 'display font-lock-extra-managed-props)
-  (font-lock-add-keywords nil svg-font-lock-keywords)
-  (font-lock-flush (point-min) (point-max))
+    (setq svg-font-lock-cancelled
+          (svg-lib-button "close-network" "CANCELLED" nil
+                          :font-size svg-font-size
+                          :foreground (face-foreground 'nano-faded)))
 
-  ;; Deactivate
-  ;; (font-lock-remove-keywords nil svg-font-lock-keywords)
-  ;; (font-lock-flush (point-min) (point-max))
 
+    )
+
+    ;; Activate
+    (push 'display font-lock-extra-managed-props)
+    (font-lock-add-keywords nil svg-font-lock-keywords)
+    (font-lock-flush (point-min) (point-max))
+    ;; Deactivate
+    ;; (font-lock-remove-keywords nil svg-font-lock-keywords)
+    ;; (font-lock-flush (point-min) (point-max))
 #+end_src
  
 #+RESULTS:
