@@ -4,49 +4,31 @@
 #+begin_src emacs-lisp
   (require 'svg-lib)
 
-  (defvar svg-font-lock-keywords
+  (setq svg-font-lock-keywords
     `(("TODO"
-       (0 (list 'face nil 'display (svg-font-lock-todo))))
+       (0 (list 'face nil 'display svg-font-lock-todo)))
       ("\\:\\([0-9a-zA-Z]+\\)\\:"
        (0 (list 'face nil 'display (svg-font-lock-tag (match-string 1)))))
       ("DONE"
-       (0 (list 'face nil 'display (svg-font-lock-done))))
-      ("\\[\\([0-9]\\{1,3\\}\\)%\\]"
-       (0 (list 'face nil 'display (svg-font-lock-progress_percent (match-string 1)))))
-      ("\\[\\([0-9]+/[0-9]+\\)\\]"
-       (0 (list 'face nil 'display (svg-font-lock-progress_count (match-string 1)))))))
+       (0 (list 'face nil 'display svg-font-lock-done)))
+      ("CANCELLED"
+       (0 (list 'face nil 'display svg-font-lock-cancelled)))))
 
   (defun svg-font-lock-tag (label)
-    (svg-lib-tag label nil :margin 0))
+    (svg-lib-tag label nil))
 
-  (defun svg-font-lock-todo ()
-    (svg-lib-tag "TODO" nil :margin 0
-                 :font-family "Roboto Mono" :font-weight 500
+  (setq svg-font-lock-todo
+    (svg-lib-tag "TODO" nil  :font-weight 400
                  :foreground (face-foreground 'nano-salient-i) :background (face-background 'nano-salient-i)))
 
-  (defun svg-font-lock-done ()
-    (svg-lib-tag "DONE" nil :margin 0
-                 :font-family "Roboto Mono" :font-weight 400
-                 :foreground (face-foreground 'nano-faded-i) :background (face-background 'nano-faded-i)))
+  (setq svg-font-lock-done
+    (svg-lib-button "check-bold" "DONE" nil
+                    :foreground (face-foreground 'nano-faded)))
 
-  (defun svg-font-lock-progress_percent (value)
-    (svg-image (svg-lib-concat
-                (svg-lib-progress-bar (/ (string-to-number value) 100.0)
-                                  nil :margin 0 :stroke 2 :radius 3 :padding 2 :width 12)
-                (svg-lib-tag (concat value "%")
-                             nil :stroke 0 :margin 0)) :ascent 'center))
+  (setq svg-font-lock-cancelled
+    (svg-lib-button "close-network" "CANCELLED" nil
+                    :foreground (face-foreground 'nano-faded)))
 
-  (defun svg-font-lock-progress_count (value)
-    (let* ((seq (mapcar #'string-to-number (split-string value "/")))
-           (count (float (car seq)))
-           (total (float (cadr seq))))
-    (svg-image (svg-lib-concat
-                (svg-lib-progress-bar (/ count total) nil
-                                  :margin 0 :stroke 2 :radius 3 :padding 2 :width 12)
-                (svg-lib-tag value nil
-                             :stroke 0 :margin 0)) :ascent 'center)))
-
-  (setq image-scaling-factor 5)
   ;; Activate
   (push 'display font-lock-extra-managed-props)
   (font-lock-add-keywords nil svg-font-lock-keywords)
@@ -57,7 +39,7 @@
   ;; (font-lock-flush (point-min) (point-max))
 
 #+end_src
-
+ 
 #+RESULTS:
 
 * DONE Progress count:   [2/3]
@@ -78,8 +60,14 @@
 - State "TODO"       from              [2021-09-15 Wed 19:48]
 :END:
 
+TODO
 - [X] Sub-task 1
 - [X] Sub-task 2
 - [ ] Sub-task 3
 
   TODO  DONE
+* CANCELLED Cancelled :ARCHIVE:
+:LOGBOOK:
+- State "CANCELLED"  from "TODO"       [2021-09-16 Thu 19:36]
+- State "TODO"       from              [2021-09-16 Thu 19:36]
+:END: =TEST=
