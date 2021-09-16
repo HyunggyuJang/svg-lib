@@ -220,8 +220,8 @@ and style elements ARGS."
          (font-family (plist-get style :font-family))
          (font-weight (plist-get style :font-weight))
 
-         (txt-char-width  (window-font-width))
-         (txt-char-height (window-font-height))
+         (txt-char-width  (window-font-width nil 'fixed-pitch))
+         (txt-char-height (window-font-height nil 'fixed-pitch))
          (font-info       (font-info (format "%s:%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
@@ -273,8 +273,8 @@ and style elements ARGS."
          (font-family (plist-get style :font-family))
          (font-weight (plist-get style :font-weight))
          
-         (txt-char-width  (window-font-width))
-         (txt-char-height (window-font-height))
+         (txt-char-width  (window-font-width nil 'fixed-pitch))
+         (txt-char-height (window-font-height nil 'fixed-pitch))
          
          (font-info       (font-info (format "%s:%d" font-family font-size)))
          (ascent          (aref font-info 8))
@@ -344,8 +344,8 @@ and style elements ARGS."
          (font-family (plist-get style :font-family))
          (font-weight (plist-get style :font-weight))
 
-         (txt-char-width  (window-font-width))
-         (txt-char-height (window-font-height))
+         (txt-char-width  (window-font-width nil 'fixed-pitch))
+         (txt-char-height (window-font-height nil 'fixed-pitch))
          
          (font-info       (font-info (format "%s:%d" font-family font-size)))
          (ascent          (aref font-info 8))
@@ -430,8 +430,8 @@ given STYLE and style elements ARGS."
          (font-weight (plist-get style :font-weight))
          (width      (+ 2 padding))
          
-         (txt-char-width  (window-font-width))
-         (txt-char-height (window-font-height))
+         (txt-char-width  (window-font-width nil 'fixed-pitch))
+         (txt-char-height (window-font-height nil 'fixed-pitch))
          (box-width       (* width txt-char-width))
          (box-height      (* height txt-char-height))
          (svg-width       (+ box-width (* margin txt-char-width)))
@@ -505,8 +505,8 @@ and style elements ARGS."
 
          (label-length    (+ (length label) 2))
                           
-         (txt-char-width  (window-font-width))
-         (txt-char-height (window-font-height))
+         (txt-char-width  (window-font-width nil 'fixed-pitch))
+         (txt-char-height (window-font-height nil 'fixed-pitch))
          (box-width       (* width txt-char-width))
          (box-height      (* height txt-char-height))
 
