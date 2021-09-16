@@ -222,7 +222,7 @@ and style elements ARGS."
 
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
-         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          (tag-char-height (aref font-info 3))
@@ -245,7 +245,7 @@ and style elements ARGS."
                        (- tag-width stroke) (- tag-height stroke)
                        :fill background :rx (- radius (/ stroke 2.0)))
     (svg-text svg label
-              :font-family font-family :font-weight font-weight  :font-size font-size
+              :font-family font-family :font-weight font-weight
               :fill foreground :x text-x :y  text-y)
     (svg-image svg :ascent 'center)))
 
@@ -276,7 +276,7 @@ and style elements ARGS."
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          
-         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (font-info       (font-info (format "%s-%d" font-family font-size))) ;
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          (tag-char-height (aref font-info 3))
@@ -347,7 +347,7 @@ and style elements ARGS."
          (txt-char-width  (window-font-width))
          (txt-char-height (window-font-height))
          
-         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          (tag-char-height (aref font-info 3))
@@ -510,7 +510,7 @@ and style elements ARGS."
          (box-width       (* width txt-char-width))
          (box-height      (* height txt-char-height))
 
-         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (font-info       (font-info (format "%s-%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
          (tag-char-height (aref font-info 3))
