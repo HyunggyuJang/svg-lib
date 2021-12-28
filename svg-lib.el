@@ -1,12 +1,13 @@
-;;; svg-lib.el --- SVG tags, progress bars & icons -*- lexical-binding: t -*-
+;;; svg-lib.el --- SVG tags, bars & icons -*- lexical-binding: t -*-
 
-;; Copyright (C) 2021 Free Software Foundation, Inc.
+;; Copyright (C) 2021 Nicolas P. Rougier
 
-;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
-;; URL: https://github.com/rougier/svg-lib
-;; Version: 0.2
+;; Author: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
+;; Homepage: https://github.com/rougier/svg-lib
+;; Keywords: convenience
+;; Version: 0.1
+
 ;; Package-Requires: ((emacs "27.1"))
-;; Keywords: svg, icons, tags, convenience
 
 ;; This file is not part of GNU Emacs.
 
@@ -28,29 +29,29 @@
 ;; Usage example:
 ;;
 ;; (insert-image (svg-lib-tag "TODO"))
-;; (insert-image (svg-lib-progress-bar 0.33))
+;; (insert-image (svg-lib-progress 0.33))
 ;; (insert-image (svg-lib-icon "star"))
 ;;
 ;; Icons ares created by parsing remote collections whose license are
 ;; compatibles with GNU Emacs:
 ;;
 ;; - Boxicons (https://github.com/atisawd/boxicons), available under a
-;;   Creative Commons 4.0 license. As of version 2.07 (December 2020),
+;;   Creative Commons 4.0 license.  As of version 2.07 (December 2020),
 ;;   this collection offers 1500 icons in two styles (regular & solid).
 ;;   Gallery is available at https://boxicons.com/
 ;;
 ;; - Octicons (https://github.com/primer/octicons), available under a
-;;   MIT License with some usage restriction for the GitHub logo. As of
+;;   MIT License with some usage restriction for the GitHub logo.  As of
 ;;   version 11.2.0 (December 2020), this collection offers 201 icons.
 ;;   Gallery available at https://primer.style/octicons/
 ;;
 ;; - Material (https://github.com/google/material-design-icons),
-;;   available under an Apache 2.0 license. As of version 4.0.0
+;;   available under an Apache 2.0 license.  As of version 4.0.0
 ;;   (December 2020), this collection offers 500+ icons in 4 styles
-;;   (filled, outlined, rounded, sharp). Gallery available at
+;;   (filled, outlined, rounded, sharp).  Gallery available at
 ;;   https://material.io/resources/icons/?style=baseline
 ;;
-;; - Bootstrap (https://github.com/twbs/icons), available under a MIT
+;; - Bootstrap (https://github.com/twbs/icons), available under an MIT
 ;;   license.  As of version 1.2.1 (December 2020), this collection
 ;;   offers 1200+ icons in 2 styles (regular & filled).  Gallery
 ;;   available at https://icons.getbootstrap.com/
@@ -59,30 +60,20 @@
 ;; can be inserted inside a text without disturbing alignment.
 ;;
 ;; Note: Each icon is cached locally to speed-up loading the next time
-;;       you use it. If for some reason the cache is corrupted you can
+;;       you use it.  If for some reason the cache is corrupted you can
 ;;       force reload using the svg-icon-get-data function.
 ;;
 ;; If you want to add new collections (i.e. URL), make sure the icons
-;; are monochrome and that their size is consistent.
-
-;;; NEWS:
-
-;; Version 0.2
-;; - Fix most of the warnings.
-
-;; Version 0.1:
-;; - Submission to ELPA
-
+;; are monochrome, their size is consistent.
 
 ;;; Code:
 (require 'svg)
 (require 'xml)
 (require 'cl-lib)
-(require 'color)
 
-;; Check if Emacs has been compiled with svg support
+;; Check if Emacs has been compled with svg support
 (if (not (image-type-available-p 'svg))
-    (error "svg-lib.el requires Emacs to be compiled with svg support.\n"))
+    (error (concat "svg-lib.el requires Emacs to be compiled with svg support.\n")))
 
 
 (defgroup svg-lib nil
@@ -122,8 +113,8 @@ collection (there are way too many to store them)."
   :group 'svg-lib
   :type 'directory)
 
-
 ;; Default style for all objects
+;; ---------------------------------------------------------------------
 (defun svg-lib-style-compute-default (&optional face)
   "Compute the default style according to face (which defaults
 to the default face)."
@@ -162,6 +153,7 @@ to the default face)."
 
 
 ;; Convert Emacs color to SVG color
+;; ---------------------------------------------------------------------
 (defun svg-lib-convert-color (color-name)
   "Convert Emacs COLOR-NAME to #rrggbb form.
 If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
@@ -173,6 +165,7 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
 
 
 ;; SVG Library style build from partial specification
+;; ---------------------------------------------------------------------
 (defun svg-lib-style (&optional base &rest args)
   "Build a news style using BASE and style elements ARGS."
   
@@ -205,6 +198,7 @@ If COLOR-NAME is unknown to Emacs, then return COLOR-NAME as-is."
 
 
 ;; Create an image displaying LABEL in a rounded box.
+;; ---------------------------------------------------------------------
 (defun svg-lib-tag (label &optional style &rest args)
   "Create an image displaying LABEL in a rounded box using given STYLE
 and style elements ARGS."
@@ -216,22 +210,22 @@ and style elements ARGS."
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
-         ;; (width       (plist-get style :width))
+         (width       (plist-get style :width))
          (height      (plist-get style :height))
          (radius      (plist-get style :radius))
-         ;; (scale       (plist-get style :scale))
+         (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
          (font-size   (plist-get style :font-size))
          (font-family (plist-get style :font-family))
          (font-weight (plist-get style :font-weight))
 
-         (txt-char-width  (window-font-width))
-         (txt-char-height (window-font-height))
-         (font-info       (font-info (format "%s-%d" font-family font-size)))
+         (txt-char-width  (window-font-width nil 'fixed-pitch))
+         (txt-char-height (window-font-height nil 'fixed-pitch))
+         (font-info       (font-info (format "%s:%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
-         ;; (tag-char-height (aref font-info 3))
+         (tag-char-height (aref font-info 3))
          (tag-width       (* (+ (length label) padding) txt-char-width))
          (tag-height      (* txt-char-height height))
 
@@ -257,7 +251,8 @@ and style elements ARGS."
 
 
 
-;; Create a progress pie
+;; Create a progress bar
+;; ---------------------------------------------------------------------
 (defun svg-lib-progress-pie (value &optional style &rest args)
   "Create a progress pie image with value VALUE using given STYLE
 and style elements ARGS."
@@ -269,22 +264,22 @@ and style elements ARGS."
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
-         ;; (width       (plist-get style :width))
+         (width       (plist-get style :width))
          (height      (plist-get style :height))
-         ;;  (scale       (plist-get style :scale))
+         (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
-         ;; (font-size   (plist-get style :font-size))
-         ;; (font-family (plist-get style :font-family))
-         ;; (font-weight (plist-get style :font-weight))
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
          
          (txt-char-width  (window-font-width nil 'fixed-pitch))
          (txt-char-height (window-font-height nil 'fixed-pitch))
          
-         ;; (font-info       (font-info (format "%s-%d" font-family font-size)))
-         ;; (ascent          (aref font-info 8))
-         ;; (tag-char-width  (aref font-info 11))
-         ;; (tag-char-height (aref font-info 3))
+         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (ascent          (aref font-info 8))
+         (tag-char-width  (aref font-info 11))
+         (tag-char-height (aref font-info 3))
 
          (tag-width       (* 2 txt-char-width))
          (tag-height      (* txt-char-height height))
@@ -292,19 +287,19 @@ and style elements ARGS."
          (svg-width       (+ tag-width (* margin txt-char-width)))
          (svg-height      tag-height)
 
-         ;; (tag-x           (/ (- svg-width tag-width) 2))
+         (tag-x           (/ (- svg-width tag-width) 2))
 
          (cx              (/ svg-width  2))
          (cy              (/ svg-height 2))
-         (radius          (- (/ tag-height 2) (/ stroke 2)))
+         (radius          (/ tag-height 2))
 
          (iradius         (- radius stroke (/ padding 2)))
 
-         (angle0          (- (/ float-pi 2)))
+         (angle0          (- (/ pi 2)))
          (x0              (+ cx (* iradius (cos angle0))))
          (y0              (+ cy (* iradius (sin angle0))))
 
-         (angle1          (+ angle0 (* value 2 float-pi)))
+         (angle1          (+ angle0 (* value 2 pi)))
          (x1              (+ cx (* iradius (cos angle1))))
          (y1              (+ cy (* iradius (sin angle1))))
 
@@ -326,8 +321,8 @@ and style elements ARGS."
     (svg-image svg :scale 1 :ascent 'center)))
 
 
-
 ;; Create a progress bar
+;; ---------------------------------------------------------------------
 (defun svg-lib-progress-bar (value &optional style &rest args)
   "Create a progress bar image with value VALUE using given STYLE
 and style elements ARGS."
@@ -342,20 +337,20 @@ and style elements ARGS."
          (width       (plist-get style :width))
          (height      (plist-get style :height))
          (radius      (plist-get style :radius))
-         ;; (scale       (plist-get style :scale))
+         (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
-         ;; (font-size   (plist-get style :font-size))
-         ;; (font-family (plist-get style :font-family))
-         ;; (font-weight (plist-get style :font-weight))
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
 
          (txt-char-width  (window-font-width nil 'fixed-pitch))
          (txt-char-height (window-font-height nil 'fixed-pitch))
          
-         ;; (font-info       (font-info (format "%s-%d" font-family font-size)))
-         ;; (ascent          (aref font-info 8))
-         ;; (tag-char-width  (aref font-info 11))
-         ;; (tag-char-height (aref font-info 3))
+         (font-info       (font-info (format "%s:%d" font-family font-size)))
+         (ascent          (aref font-info 8))
+         (tag-char-width  (aref font-info 11))
+         (tag-char-height (aref font-info 3))
 
          (tag-width       (* width txt-char-width))
          (tag-height      (* txt-char-height height))
@@ -385,6 +380,7 @@ and style elements ARGS."
 
 
 ;; Create a rounded box icon
+;; ---------------------------------------------------------------------
 (defun svg-lib--icon-get-data (collection name &optional force-reload)
   "Retrieve icon NAME from COLLECTION.
 
@@ -394,7 +390,7 @@ Cached version is returned if it exists unless FORCE-RELOAD is t."
   (let ((url (format (cdr (assoc collection svg-lib-icon-collections)) name)))
     ;; create the svg-lib-icons-dir if not exists
     (unless (file-exists-p svg-lib-icons-dir)
-      (make-directory svg-lib-icons-dir t))
+      (make-directory svg-lib-icons-dir))
     (let* ((filename (expand-file-name (format "%s_%s.svg" collection name) svg-lib-icons-dir))
            (buffer (if (or force-reload (not (file-exists-p filename)))
                        (with-current-buffer (url-retrieve-synchronously url)
@@ -429,9 +425,9 @@ given STYLE and style elements ARGS."
          (scale       (plist-get style :scale))
          (margin      (plist-get style :margin))
          (padding     (plist-get style :padding))
-         ;; (font-size   (plist-get style :font-size))
-         ;; (font-family (plist-get style :font-family))
-         ;; (font-weight (plist-get style :font-weight))
+         (font-size   (plist-get style :font-size))
+         (font-family (plist-get style :font-family))
+         (font-weight (plist-get style :font-weight))
          (width      (+ 2 padding))
          
          (txt-char-width  (window-font-width nil 'fixed-pitch))
@@ -445,7 +441,7 @@ given STYLE and style elements ARGS."
 
          ;; Read original viewbox
          (viewbox (cdr (assq 'viewBox (xml-node-attributes (car root)))))
-         (viewbox (mapcar #'string-to-number (split-string viewbox)))
+         (viewbox (mapcar 'string-to-number (split-string viewbox)))
          (icon-x      (nth 0 viewbox))
          (icon-y      (nth 1 viewbox))
          (icon-width  (nth 2 viewbox))
@@ -473,8 +469,7 @@ given STYLE and style elements ARGS."
     (dolist (item (xml-get-children (car root) 'path))
       (let* ((attrs (xml-node-attributes item))
              (path (cdr (assoc 'd attrs)))
-             ;; (fill (or (cdr (assoc 'fill attrs)) foreground))
-             )
+             (fill (or (cdr (assoc 'fill attrs)) foreground)))
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
@@ -483,6 +478,7 @@ given STYLE and style elements ARGS."
 
 
 ;; Create an image displaying LABEL in a rounded box.
+;; ---------------------------------------------------------------------
 (defun svg-lib-button (icon label &optional style &rest args)
   "Create an image displaying LABEL in a rounded box using given STYLE
 and style elements ARGS."
@@ -497,7 +493,7 @@ and style elements ARGS."
          (foreground  (plist-get style :foreground))
          (background  (plist-get style :background))
          (stroke      (plist-get style :stroke))
-         ;; (width       (plist-get style :width))
+         (width       (plist-get style :width))
          (height      (plist-get style :height))
          (radius      (plist-get style :radius))
          (scale       (plist-get style :scale))
@@ -509,15 +505,15 @@ and style elements ARGS."
 
          (label-length    (+ (length label) 2))
                           
-         (txt-char-width  (window-font-width))
-         (txt-char-height (window-font-height))
-         ;; (box-width       (* width txt-char-width))
-         ;; (box-height      (* height txt-char-height))
+         (txt-char-width  (window-font-width nil 'fixed-pitch))
+         (txt-char-height (window-font-height nil 'fixed-pitch))
+         (box-width       (* width txt-char-width))
+         (box-height      (* height txt-char-height))
 
-         (font-info       (font-info (format "%s-%d" font-family font-size)))
+         (font-info       (font-info (format "%s:%d" font-family font-size)))
          (ascent          (aref font-info 8))
          (tag-char-width  (aref font-info 11))
-         ;; (tag-char-height (aref font-info 3))
+         (tag-char-height (aref font-info 3))
          (tag-width       (* (+ label-length padding) txt-char-width))
          (tag-height      (* txt-char-height height))
 
@@ -560,8 +556,7 @@ and style elements ARGS."
     (dolist (item (xml-get-children (car root) 'path))
       (let* ((attrs (xml-node-attributes item))
              (path (cdr (assoc 'd attrs)))
-             ;; (fill (or (cdr (assoc 'fill attrs)) foreground))
-             )
+             (fill (or (cdr (assoc 'fill attrs)) foreground)))
         (svg-node svg 'path :d path
                             :fill foreground
                             :transform icon-transform)))
